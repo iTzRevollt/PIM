@@ -52,3 +52,21 @@ int main() {
 
     return 0;
 }
+
+// Agora, vamos criar o arquivo CSV
+    FILE* arquivoCSV = fopen("quiz sobre a semana de arte moderna.csv", "a");
+    if (arquivoCSV == NULL) {
+        printf("Erro ao criar o arquivo CSV de avaliacoes.\n");
+        return 1;
+    }
+{
+    fprintf(arquivoCSV, "Codigo, Pontuacao, Satisfacao\n");
+    fprintf(arquivoCSV, "%s, %d, %c\n", codigo, pontuacao, nivelSatisfacao);
+
+    fclose(arquivoCSV);
+
+    printf("Esperamos que tenha aproveitado sua visita, volte sempre!!\n");
+
+    return 0;
+
+}

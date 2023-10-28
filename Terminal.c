@@ -3,9 +3,6 @@
 #include <time.h>
 #include <string.h>
 
-#define MAX_EXPOSICOES 4
-#define MAX_VISITANTES 100
-
 struct Visitante {
     char nome[100];
     int idade;
@@ -27,36 +24,53 @@ char* gerarCodigoAleatorio() {
     return codigo;
 }
 
+void escreverCSV(struct Visitante visitantes[], int numVisitantes) {
+    FILE* arquivoCSV = fopen("vendas.csv", "w");
+    if (arquivoCSV == NULL) {
+        printf("Erro ao criar o arquivo CSV de vendas.\n");
+        return;
+    }
+
+    fprintf(arquivoCSV, "Nome,Idade,Codigo\n");
+    for (int i = 0; i < numVisitantes; i++) {
+        fprintf(arquivoCSV, "%s,%d,%s\n", visitantes[i].nome, visitantes[i].idade, visitantes[i].codigo);
+    }
+
+    fclose(arquivoCSV);
+}
+
 int main() {
     srand((unsigned int)time(NULL));
 
-    struct Visitante visitantes[MAX_VISITANTES];
-    struct Exposicao exposicoes[MAX_EXPOSICOES];
+    struct Visitante visitantes[100];
+    struct Exposicao exposicoes[100];
+
+    int numVisitantes = 0;
 
     struct Visitante novoVisitante;
     novoVisitante.nome[0] = '\0';
     novoVisitante.idade = 0;
     novoVisitante.codigo[0] = '\0';
 
-    strcpy(exposicoes[0].nome, "100 anos da semana moderna");
+    strcpy(exposicoes[0].nome, "Exposicao 1");
     exposicoes[0].preco = 25.0;
     exposicoes[0].descontoEstudante = 1;
     exposicoes[0].descontoCrianca = 0;
     exposicoes[0].descontoIdoso = 1;
 
-    strcpy(exposicoes[1].nome, "150 anos de Santos Dumond");
+    strcpy(exposicoes[1].nome, "Exposicao 2");
     exposicoes[1].preco = 25.0;
     exposicoes[1].descontoEstudante = 1;
     exposicoes[1].descontoCrianca = 0;
     exposicoes[1].descontoIdoso = 0;
 
-    strcpy(exposicoes[2].nome, "Jogos Olimpicos de Paris 2024");
+    strcpy(exposicoes[2].nome, "Exposicao 3");
     exposicoes[2].preco = 25.0;
     exposicoes[2].descontoEstudante = 1;
     exposicoes[2].descontoCrianca = 1;
     exposicoes[2].descontoIdoso = 1;
 
-    strcpy(exposicoes[3].nome, "Impactos das Mudancas Climaticas");
+    strcpy(exposicoes[3].nome, "Exposicao 4");
     exposicoes[3].preco = 25.0;
     exposicoes[3].descontoEstudante = 0;
     exposicoes[3].descontoCrianca = 1;
@@ -73,7 +87,6 @@ int main() {
         printf("1. Comprar ingresso\n");
         printf("2. Registrar visitante\n");
         printf("3. Finalizar compra\n");
-        //printf("4. Sair\n");
         printf("\n");
 
         scanf("%d", &escolha);
@@ -81,7 +94,7 @@ int main() {
         switch (escolha) {
             case 1:
                 printf("Escolha uma exposicao para comprar ingressos:\n");
-                for (int i = 0; i < MAX_EXPOSICOES; i++) {
+                for (int i = 0; i < 4; i++) {
                     printf("%d. %s - Preco: %.2f reais\n", i + 1, exposicoes[i].nome, exposicoes[i].preco);
                 }
                 printf("\n");
@@ -89,10 +102,10 @@ int main() {
                 int escolhaExposicao;
                 scanf("%d", &escolhaExposicao);
 
-                if (escolhaExposicao >= 1 && escolhaExposicao <= MAX_EXPOSICOES) {
+                if (escolhaExposicao >= 1 && escolhaExposicao <= 4) {
                     struct Exposicao exposicaoEscolhida = exposicoes[escolhaExposicao - 1];
                     printf("Ingresso para %s selecionado.\n", exposicaoEscolhida.nome);
-                    printf("Preco do ingresso: %.2f reais\n", exposicaoEscolhida.preco);
+                    printf("Preco do ingresso: %.2f reais\n");
                     printf("Escolha o tipo de ingresso:\n");
                     printf("1. Inteiro\n");
                     printf("2. Meia\n");
@@ -117,7 +130,9 @@ int main() {
                 strcpy(novoVisitante.nome, nome);
                 novoVisitante.idade = idade;
                 strcpy(novoVisitante.codigo, codigo);
-                printf("Visitante registrado com sucesso. Codigo gerado: %s\n", codigo);
+                printf("Visitante registrado com sucesso. Codigo gerado: %s\n");
+                visitantes[numVisitantes] = novoVisitante;
+                numVisitantes++;
                 break;
 
             case 3:
@@ -129,6 +144,8 @@ int main() {
                 break;
         }
     }
+
+    escreverCSV(visitantes, numVisitantes);
 
     return 0;
 }
