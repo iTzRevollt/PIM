@@ -17,21 +17,23 @@ struct Exposicao {
     int descontoIdoso;
 };
 
-char* gerarCodigoAleatorio() {
-    static char codigo[6];
-    srand((unsigned int)time(NULL));
-    sprintf(codigo, "%05d", rand() % 10000);
-    return codigo;
+void gerarCodigoAleatorio(char codigo[6]) {
+    sprintf(codigo, "%05d", rand() % 100000);
 }
 
 void escreverCSV(struct Visitante visitantes[], int numVisitantes) {
-    FILE* arquivoCSV = fopen("vendas.csv", "w");
+    FILE* arquivoCSV = fopen("vendas.csv", "a"); 
     if (arquivoCSV == NULL) {
-        printf("Erro ao criar o arquivo CSV de vendas.\n");
+        printf("Erro ao abrir o arquivo CSV de vendas.\n");
         return;
     }
 
-    fprintf(arquivoCSV, "Nome,Idade,Codigo\n");
+   
+    long tamanho = ftell(arquivoCSV);
+    if (tamanho == 0) {
+        fprintf(arquivoCSV, "Nome,Idade,Codigo\n");
+    }
+
     for (int i = 0; i < numVisitantes; i++) {
         fprintf(arquivoCSV, "%s,%d,%s\n", visitantes[i].nome, visitantes[i].idade, visitantes[i].codigo);
     }
@@ -39,11 +41,12 @@ void escreverCSV(struct Visitante visitantes[], int numVisitantes) {
     fclose(arquivoCSV);
 }
 
+
 int main() {
     srand((unsigned int)time(NULL));
 
     struct Visitante visitantes[100];
-    struct Exposicao exposicoes[100];
+    struct Exposicao exposicoes[4];
 
     int numVisitantes = 0;
 
@@ -59,19 +62,19 @@ int main() {
     exposicoes[0].descontoIdoso = 1;
 
     strcpy(exposicoes[1].nome, "Exposicao 2");
-    exposicoes[1].preco = 25.0;
+    exposicoes[1].preco = 26.0;
     exposicoes[1].descontoEstudante = 1;
     exposicoes[1].descontoCrianca = 0;
     exposicoes[1].descontoIdoso = 0;
 
     strcpy(exposicoes[2].nome, "Exposicao 3");
-    exposicoes[2].preco = 25.0;
+    exposicoes[2].preco = 20.0;
     exposicoes[2].descontoEstudante = 1;
     exposicoes[2].descontoCrianca = 1;
     exposicoes[2].descontoIdoso = 1;
 
     strcpy(exposicoes[3].nome, "Exposicao 4");
-    exposicoes[3].preco = 25.0;
+    exposicoes[3].preco = 22.0;
     exposicoes[3].descontoEstudante = 0;
     exposicoes[3].descontoCrianca = 1;
     exposicoes[3].descontoIdoso = 1;
@@ -79,14 +82,14 @@ int main() {
     int escolha = 0;
     char nome[100];
     int idade;
-    char codigo[6];
 
     while (escolha != 4) {
         printf("Sistema de Vendas e Registro de Visitantes\n");
         printf("Escolha uma opcao:\n");
         printf("1. Comprar ingresso\n");
         printf("2. Registrar visitante\n");
-        printf("3. Finalizar compra\n");
+        printf("3. Finalizar compra.\n"); //para gerar o arquivo no banco de dados precisa finalizar a compra.
+        //printf("4. Encerrar o programa\n");
         printf("\n");
 
         scanf("%d", &escolha);
@@ -103,9 +106,8 @@ int main() {
                 scanf("%d", &escolhaExposicao);
 
                 if (escolhaExposicao >= 1 && escolhaExposicao <= 4) {
-                    struct Exposicao exposicaoEscolhida = exposicoes[escolhaExposicao - 1];
-                    printf("Ingresso para %s selecionado.\n", exposicaoEscolhida.nome);
-                    printf("Preco do ingresso: %.2f reais\n");
+                    printf("Ingresso para %s selecionado.\n", exposicoes[escolhaExposicao - 1].nome);
+                    printf("Preco do ingresso: %.2f reais\n", exposicoes[escolhaExposicao - 1].preco);
                     printf("Escolha o tipo de ingresso:\n");
                     printf("1. Inteiro\n");
                     printf("2. Meia\n");
@@ -126,26 +128,29 @@ int main() {
                 printf("Digite a idade do visitante: ");
                 scanf("%d", &idade);
                 printf("\n");
-                strcpy(codigo, gerarCodigoAleatorio());
+                gerarCodigoAleatorio(novoVisitante.codigo);
                 strcpy(novoVisitante.nome, nome);
                 novoVisitante.idade = idade;
-                strcpy(novoVisitante.codigo, codigo);
-                printf("Visitante registrado com sucesso. Codigo gerado: %s\n");
+                printf("Visitante registrado com sucesso. Codigo gerado: %s\n", novoVisitante.codigo);
                 visitantes[numVisitantes] = novoVisitante;
                 numVisitantes++;
                 break;
 
             case 3:
-                printf("Finalizando compra...\n");
+                printf("Finalizando compra e gerando arquivo CSV...\n");
+                escreverCSV(visitantes, numVisitantes);
+                printf("Arquivo CSV gerado com sucesso!\n");
                 break;
 
             case 4:
                 printf("Encerrando o programa.\n");
                 break;
+
+            default:
+                printf("Opcao invalida. Tente novamente.\n");
+                break;
         }
     }
-
-    escreverCSV(visitantes, numVisitantes);
 
     return 0;
 }
